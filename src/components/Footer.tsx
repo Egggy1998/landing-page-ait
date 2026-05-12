@@ -3,16 +3,37 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useRef } from "react";
 import { motion } from "motion/react";
 import { Facebook, Linkedin, Mail, Phone, Globe, Send, MapPin } from "lucide-react";
 
+const LADIPAGE_FORM_ID = "6a02bef52509520013e060e7";
+
 export default function Footer() {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (!formRef.current) return;
+    setIsSubmitting(true);
+
+    const formData = new FormData(formRef.current);
+    const data: Record<string, string> = {};
+    formData.forEach((value, key) => { data[key] = value.toString(); });
+    data.form_id = LADIPAGE_FORM_ID;
+
+    try {
+      await fetch("https://api.ladipage.net/2.0/lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+    } catch (_) {}
+
     setIsSubmitted(true);
+    setIsSubmitting(false);
   };
 
   return (
@@ -79,12 +100,13 @@ export default function Footer() {
             </div>
             
             <div className="lg:w-3/5 p-12 md:p-16 bg-white">
-              <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <form ref={formRef} onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-2">
                   <label className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Họ và tên *</label>
                   <input 
                     required
                     type="text" 
+                    name="name"
                     placeholder="Nhập họ và tên"
                     className="w-full h-14 bg-slate-50 border-b-2 border-slate-100 px-0 focus:border-brand focus:bg-transparent outline-none transition-all text-slate-800 placeholder:text-slate-300"
                   />
@@ -94,6 +116,7 @@ export default function Footer() {
                   <input 
                     required
                     type="tel" 
+                    name="phone"
                     placeholder="Nhập số điện thoại"
                     className="w-full h-14 bg-slate-50 border-b-2 border-slate-100 px-0 focus:border-brand focus:bg-transparent outline-none transition-all text-slate-800 placeholder:text-slate-300"
                   />
@@ -103,13 +126,14 @@ export default function Footer() {
                   <input 
                     required
                     type="email" 
+                    name="email"
                     placeholder="Nhập email"
                     className="w-full h-14 bg-slate-50 border-b-2 border-slate-100 px-0 focus:border-brand focus:bg-transparent outline-none transition-all text-slate-800 placeholder:text-slate-300"
                   />
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Địa điểm học</label>
-                  <select className="w-full h-14 bg-slate-50 border-b-2 border-slate-100 px-0 focus:border-brand focus:bg-transparent outline-none transition-all text-slate-600">
+                  <select name="location" className="w-full h-14 bg-slate-50 border-b-2 border-slate-100 px-0 focus:border-brand focus:bg-transparent outline-none transition-all text-slate-600">
                     <option>Hà Nội</option>
                     <option>Hồ Chí Minh</option>
                   </select>
@@ -117,6 +141,7 @@ export default function Footer() {
                 <div className="md:col-span-2 space-y-2">
                   <label className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Ghi chú</label>
                   <textarea 
+                    name="note"
                     rows={3}
                     placeholder="Để lại câu hỏi của bạn..."
                     className="w-full bg-slate-50 border-b-2 border-slate-100 px-0 focus:border-brand focus:bg-transparent outline-none transition-all py-4 text-slate-800 placeholder:text-slate-300 resize-none"
@@ -125,9 +150,10 @@ export default function Footer() {
                 <div className="md:col-span-2 pt-6">
                   <button 
                     type="submit"
-                    className="w-full btn-gold h-16 text-lg uppercase tracking-[0.2em] shadow-[0_15px_30px_rgba(226,196,122,0.3)]"
+                    disabled={isSubmitting}
+                    className="w-full btn-gold h-16 text-lg uppercase tracking-[0.2em] shadow-[0_15px_30px_rgba(226,196,122,0.3)] disabled:opacity-60"
                   >
-                    GỬI THÔNG TIN NGAY
+                    {isSubmitting ? "ĐANG GỬI..." : "GỬI THÔNG TIN NGAY"}
                   </button>
                 </div>
               </form>
