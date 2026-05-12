@@ -7,7 +7,7 @@ import { useState, FormEvent, useRef } from "react";
 import { motion } from "motion/react";
 import { Facebook, Linkedin, Mail, Phone, Globe, Send, MapPin } from "lucide-react";
 
-const LADIPAGE_FORM_ID = "FORM2";
+const GSHEET_URL = "https://script.google.com/macros/s/AKfycbxufh60SKX1fMA1UX5uvTn4D5M718To_fdkd_ZzqnyVSmjLLTEIt5uhxG7ZMnGGkxQT/exec";
 
 export default function Footer() {
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -19,31 +19,18 @@ export default function Footer() {
     if (!formRef.current) return;
     setIsSubmitting(true);
 
-    // Native form POST to Ladipage (bypass CORS)
-    const iframe = document.createElement("iframe");
-    iframe.name = "ladipage_submit";
-    iframe.style.display = "none";
-    document.body.appendChild(iframe);
+    const formData = new FormData(formRef.current);
+    const data: Record<string, string> = {};
+    formData.forEach((value, key) => { data[key] = value.toString(); });
 
-    const form = formRef.current;
-    const hiddenInput = document.createElement("input");
-    hiddenInput.type = "hidden";
-    hiddenInput.name = "form_id";
-    hiddenInput.value = LADIPAGE_FORM_ID;
-    form.appendChild(hiddenInput);
-
-    form.target = "ladipage_submit";
-    form.action = "https://api.ladipage.net/2.0/lead";
-    form.method = "POST";
-    form.submit();
-
-    // Cleanup
-    setTimeout(() => {
-      form.removeChild(hiddenInput);
-      form.removeAttribute("target");
-      form.removeAttribute("action");
-      document.body.removeChild(iframe);
-    }, 3000);
+    try {
+      await fetch(GSHEET_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+    } catch (_) {}
 
     setIsSubmitted(true);
     setIsSubmitting(false);
