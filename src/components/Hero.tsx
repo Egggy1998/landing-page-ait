@@ -7,7 +7,7 @@ import { motion } from "motion/react";
 
 export default function Hero() {
   const scrollToForm = () => {
-    document.getElementById("registration-form")?.scrollIntoView({ behavior: "smooth" });
+    document.getElementById("lien-he")?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (

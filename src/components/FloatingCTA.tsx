@@ -24,7 +24,7 @@ export default function FloatingCTA() {
   }, []);
 
   const scrollToForm = () => {
-    document.getElementById("registration-form")?.scrollIntoView({ behavior: "smooth" });
+    document.getElementById("lien-he")?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
