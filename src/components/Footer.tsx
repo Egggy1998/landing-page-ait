@@ -19,19 +19,31 @@ export default function Footer() {
     if (!formRef.current) return;
     setIsSubmitting(true);
 
-    const formData = new FormData(formRef.current);
-    const params = new URLSearchParams();
-    formData.forEach((value, key) => { params.append(key, value.toString()); });
-    params.append("form_id", LADIPAGE_FORM_ID);
+    // Native form POST to Ladipage (bypass CORS)
+    const iframe = document.createElement("iframe");
+    iframe.name = "ladipage_submit";
+    iframe.style.display = "none";
+    document.body.appendChild(iframe);
 
-    try {
-      await fetch("https://api.ladipage.net/2.0/lead", {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: params.toString(),
-      });
-    } catch (_) {}
+    const form = formRef.current;
+    const hiddenInput = document.createElement("input");
+    hiddenInput.type = "hidden";
+    hiddenInput.name = "form_id";
+    hiddenInput.value = LADIPAGE_FORM_ID;
+    form.appendChild(hiddenInput);
+
+    form.target = "ladipage_submit";
+    form.action = "https://api.ladipage.net/2.0/lead";
+    form.method = "POST";
+    form.submit();
+
+    // Cleanup
+    setTimeout(() => {
+      form.removeChild(hiddenInput);
+      form.removeAttribute("target");
+      form.removeAttribute("action");
+      document.body.removeChild(iframe);
+    }, 3000);
 
     setIsSubmitted(true);
     setIsSubmitting(false);
