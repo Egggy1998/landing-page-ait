@@ -7,7 +7,7 @@ import { useState, FormEvent, useRef } from "react";
 import { motion } from "motion/react";
 import { Facebook, Linkedin, Mail, Phone, Globe, Send, MapPin } from "lucide-react";
 
-const LADIPAGE_FORM_ID = "6a02bef52509520013e060e7";
+const LADIPAGE_FORM_ID = "FORM2";
 
 export default function Footer() {
   const [isSubmitted, setIsSubmitted] = useState(false);
