@@ -24,12 +24,7 @@ export default function Footer() {
     formData.forEach((value, key) => { data[key] = value.toString(); });
 
     try {
-      await fetch(GSHEET_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+      await navigator.sendBeacon(GSHEET_URL, JSON.stringify(data));
     } catch (_) {}
 
     setIsSubmitted(true);
