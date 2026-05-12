@@ -20,15 +20,16 @@ export default function Footer() {
     setIsSubmitting(true);
 
     const formData = new FormData(formRef.current);
-    const data: Record<string, string> = {};
-    formData.forEach((value, key) => { data[key] = value.toString(); });
-    data.form_id = LADIPAGE_FORM_ID;
+    const params = new URLSearchParams();
+    formData.forEach((value, key) => { params.append(key, value.toString()); });
+    params.append("form_id", LADIPAGE_FORM_ID);
 
     try {
       await fetch("https://api.ladipage.net/2.0/lead", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        mode: "no-cors",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: params.toString(),
       });
     } catch (_) {}
 
